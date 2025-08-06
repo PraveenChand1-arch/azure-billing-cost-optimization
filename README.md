@@ -52,3 +52,32 @@ azure-billing-cost-optimization/
 ├── README.md
 ├── prompts_chatgpt.md
 └── LICENSE
+
+
+
+---
+
+## 🚀 How It Works
+
+### 🔁 Archiving (Timer Trigger)
+
+- Scans Cosmos DB for records older than 90 days
+- Moves them to Blob Storage (as compressed JSON)
+- Deletes from Cosmos DB to reduce cost
+
+### 🔍 Cold Read Logic
+
+- When an old record is requested:
+  - Function checks Cosmos DB
+  - If not found, fetches from Blob Storage and returns
+
+---
+
+## 📜 Usage
+
+```bash
+# Archive script
+python3 scripts/archive_old_billing_records.py
+
+# Cold read fallback test
+python3 scripts/cold_read_fallback.py
