@@ -43,3 +43,12 @@ We split data into two tiers:
 
 ## 🗃️ Folder Structure
 
+azure-billing-cost-optimization/
+├── architecture/
+├── scripts/
+│ ├── archive_old_billing_records.py
+│ └── cold_read_fallback.py
+├── pseudocode/
+├── README.md
+├── prompts_chatgpt.md
+└── LICENSE
