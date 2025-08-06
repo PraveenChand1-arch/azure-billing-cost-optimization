@@ -1,4 +1,5 @@
-🚀 Azure Cost Optimization: Serverless Hot-Cold Billing Data Tiering
+🚀 Azure Cost Optimization: Serverless Hot-Cold Billing Data Tiering 
+
 ✅ Problem Statement
 We have a serverless architecture using Azure Cosmos DB to store billing records (up to 300 KB each, over 2 million total). The system is read-heavy, but records older than 3 months are rarely accessed.
 
@@ -30,8 +31,7 @@ If not found, fallback to Blob Storage.
 
 🧱 Architecture Diagram
 sql
-Copy
-Edit
+
 Client/API
    |
    |-- Read / Write Request
@@ -43,15 +43,13 @@ Azure Function App (API Layer)
    |--- If not found → Blob Storage (Cold data)
           |
           |--- Cold read via fallback
-Scheduled Data Mover: Python script (daily via Azure Function or GitHub Action)
+
 
 🧑‍💻 Core Scripts
-1. Archival Script: archive_old_records.py
+ Archival Script: archive_old_records.py
 Moves records older than 90 days from Cosmos DB → Blob.
 
 python
-Copy
-Edit
 from datetime import datetime, timedelta
 from azure.cosmos import CosmosClient
 from azure.storage.blob import BlobServiceClient
@@ -82,12 +80,9 @@ for record in container.query_items(f"SELECT * FROM c WHERE c.timestamp < '{cuto
     blob_name = f"{record['id']}.json"
     blob_container.upload_blob(blob_name, json.dumps(record), overwrite=True)
     container.delete_item(item=record['id'], partition_key=record['partitionKey'])
-2. Fallback Read Logic (API Layer)
-In your existing GET /billing/{id} function:
 
-python
-Copy
-Edit
+Fallback Read Logic (API Layer)
+
 def get_billing_record(record_id):
     try:
         return cosmos_container.read_item(item=record_id, partition_key=record_id)
@@ -96,12 +91,9 @@ def get_billing_record(record_id):
         blob_name = f"{record_id}.json"
         blob_data = blob_container_client.get_blob_client(blob=blob_name).download_blob().readall()
         return json.loads(blob_data)
-⚙️ Optional GitHub Actions (Free Tier)
-Automate archival with a GitHub Action:
 
 yaml
-Copy
-Edit
+
 # .github/workflows/archive.yaml
 name: Archive Old Billing Records
 
@@ -126,6 +118,7 @@ jobs:
           COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
           AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_CONN_STRING }}
         run: python archive_old_records.py
+
 🔒 Security & Cost Considerations
 Cold tier Blob Storage is ~80% cheaper than Cosmos DB.
 
@@ -134,9 +127,6 @@ Azure Function or GitHub Action handles archiving without server overhead.
 Secrets managed via GitHub Secrets or Azure Key Vault.
 
 📁 Repo Structure
-bash
-Copy
-Edit
 .
 ├── archive_old_records.py
 ├── prompts_chatgpt.md      # This ChatGPT conversation
@@ -146,6 +136,7 @@ Edit
 │       └── archive.yaml
 ├── architecture.png         # (Optional image)
 └── README.md
+d
 
 ✅ Azure Cost Optimization Summary
 
@@ -158,3 +149,6 @@ Edit
 
 ![Tiered Architecture](https://github.com/user-attachments/assets/94c66218-8cf7-47ae-9228-67773496973d)
 ![Cold-Read Flowchart](https://github.com/user-attachments/assets/853925c3-68c4-4248-bfd6-8f01300eaa4a)
+
+
+✅ This assignment provides a scalable and cost-effective solution to optimize Azure Cosmos DB using automation and hot-cold tiering, aligning with best practices in cloud architecture.
